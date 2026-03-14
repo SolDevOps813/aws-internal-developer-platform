@@ -1,0 +1,10 @@
+#Create the Service Registry..Now the platform knows what services should exist.
+
+services:
+  - name: billing-api
+    tenant: tenantA
+    runtime: python3.11
+
+  - name: orders-api
+    tenant: tenantA
+    runtime: python3.11
