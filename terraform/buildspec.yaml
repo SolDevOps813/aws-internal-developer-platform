@@ -1,34 +1,26 @@
 version: 0.2
 
 phases:
+
   install:
-    runtime-versions:
-      nodejs: 22
     commands:
-      # Install Node v24
-      - n install 24
+      - echo Installing Terraform
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
+      - unzip terraform.zip
+      - mv terraform /usr/local/bin/
 
-      # Installing global packages
-      - npm i -g npm@11.6.4
-      - npm i -g serverless@4.27.1
-      - npm i -g typescript
-      - npm i -g ts-node
-
-      # Installing dependencies
-      - npm i
+  pre_build:
+    commands:
+      - echo Initializing Terraform
+      - cd terraform/platform
+      - terraform init
 
   build:
     commands:
-      - npm run build
-      - serverless deploy --stage $STAGE --region $REGION --config serverless.yml
-      - serverless deploy --stage $STAGE --region $REGION --config serverless-eventbus.yml
-      - serverless deploy --stage $STAGE --region $REGION --config serverless-activitylog-eventbus.yml
-      - serverless deploy --stage $STAGE --region $REGION --config serverlessConsumer.yml
-      - serverless deploy --stage $STAGE --region $REGION --config serverlessPublic.yml
-      - serverless deploy --stage $STAGE --region $REGION --config serverlessMediaResources.yml
-      # - npm run post-deploy
+      - echo Planning Terraform
+      - terraform plan
+
   post_build:
-    on-failure: ABORT
     commands:
-      - echo "infrastructure post_build stage=" $STAGE
-      - node dist/scripts/CognitoAdjustments.js --stage=$STAGE --region=$REGION
+      - echo Applying Terraform
+      - terraform apply -auto-approve
