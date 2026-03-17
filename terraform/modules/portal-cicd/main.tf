@@ -31,6 +31,49 @@ resource "aws_codebuild_project" "portal_build" {
   }
 }
 
+resource "aws_iam_role" "pipeline_role" {
+  name = "portal-pipeline-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "codepipeline.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+resource "aws_iam_role_policy" "pipeline_policy" {
+  role = aws_iam_role.pipeline_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:*"
+        ]
+        Resource = "*"
+      },
+
+      {
+        Effect = "Allow"
+        Action = [
+          "codebuild:StartBuild",
+          "codebuild:BatchGetBuilds"
+        ]
+        Resource = "*"
+      }
+
+    ]
+  })
+}
 resource "aws_iam_role" "codebuild_role" {
 
   name = "portal-codebuild-role"
@@ -87,6 +130,9 @@ resource "aws_iam_role_policy" "codebuild_policy" {
   })
 }
 
+resource "aws_s3_bucket" "pipeline_bucket" {
+  bucket = "portal-pipeline-artifacts-${var.environment}"
+}
 resource "aws_codepipeline" "portal_pipeline" {
 
   name     = "developer-portal-pipeline"
@@ -124,7 +170,9 @@ resource "aws_codepipeline" "portal_pipeline" {
       }
 
     }
-
+depends_on = [
+  aws_codebuild_project.portal_build
+]
   }
 
   stage {
