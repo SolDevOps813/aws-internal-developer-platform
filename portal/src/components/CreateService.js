@@ -1,23 +1,23 @@
-#!/bin/bash
+async function createService() {
 
-SERVICE=$1
-TENANT=$2
+  const tenant = document.getElementById("tenant").value
+  const service = document.getElementById("service").value
 
-cat <<EOF >> service-registry/services.yaml
+  await fetch(API_BASE + "/create-service", {
 
-  - name: $SERVICE
-    tenant: $TENANT
-    runtime: python3.11
-EOF
+    method: "POST",
 
-echo "Service registered."
+    headers: {
+      "Content-Type": "application/json"
+    },
 
-cd terraform/environments/dev
-terraform apply -auto-approve
+    body: JSON.stringify({
+      tenant: tenant,
+      service: service
+    })
 
-#Now a developer runs:
-#./create-service.sh payments-api tenantA
-# Platform automatically:
-# Registers service
-# Deploys infrastructure
-# Creates API endpoint
+  })
+
+  alert("Service creation started")
+
+}
