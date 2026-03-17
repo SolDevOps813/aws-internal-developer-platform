@@ -1,26 +1,21 @@
-# Automated Tenant Provisioning
+async function createTenant() {
 
-# Now implement:
+  const tenant = document.getElementById("newTenant").value
 
-# ./platform-cli create-tenant tenantB
+  await fetch(API_BASE + "/create-tenant", {
 
+    method: "POST",
 
-#!/bin/bash
+    headers: {
+      "Content-Type": "application/json"
+    },
 
-TENANT=$1
+    body: JSON.stringify({
+      tenant: tenant
+    })
 
-mkdir -p terraform/tenants/$TENANT
+  })
 
-cat <<EOF > terraform/tenants/$TENANT/services.tf
+  alert("Tenant created")
 
-# Tenant services
-
-EOF
-
-echo "Tenant $TENANT created"
-
-# Later Terraform provisions:
-
-# routing through AWS CloudFront
-
-# identity groups in Amazon Cognito
+}
