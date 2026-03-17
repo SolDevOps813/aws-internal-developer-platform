@@ -1,12 +1,11 @@
 resource "aws_codebuild_project" "portal_build" {
 
-  name = "portal-deployment"
-
+  name         = "portal-deployment"
   service_role = aws_iam_role.codebuild_role.arn
 
   source {
-    type = "CODEPIPELINE"
-    buildspec = "portal-build/buildspec.yml"
+    type      = "CODEPIPELINE"
+    buildspec = "portal/buildspec.yaml"  # ✅ FIXED
   }
 
   artifacts {
@@ -14,20 +13,22 @@ resource "aws_codebuild_project" "portal_build" {
   }
 
   environment {
-
     compute_type = "BUILD_GENERAL1_SMALL"
+    image        = "aws/codebuild/standard:7.0"
+    type         = "LINUX_CONTAINER"
 
-    image = "aws/codebuild/standard:7.0"
-
-    type = "LINUX_CONTAINER"
-
+    # ✅ ADD THIS
     environment_variable {
-      name  = "CF_DIST_ID"
-      value = var.cloudfront_distribution_id
+      name  = "S3_BUCKET"
+      value = var.portal_bucket_name
     }
 
+    # ✅ FIXED NAME
+    environment_variable {
+      name  = "CLOUDFRONT_DISTRIBUTION_ID"
+      value = var.cloudfront_distribution_id
+    }
   }
-
 }
 
 resource "aws_iam_role" "codebuild_role" {
@@ -66,7 +67,9 @@ resource "aws_iam_role_policy" "codebuild_policy" {
       {
         Effect = "Allow"
         Action = [
-          "s3:*"
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
         ]
         Resource = "*"
       },
@@ -82,7 +85,6 @@ resource "aws_iam_role_policy" "codebuild_policy" {
     ]
 
   })
-
 }
 
 resource "aws_codepipeline" "portal_pipeline" {
