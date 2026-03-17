@@ -1,0 +1,17 @@
+// #Platform API Config
+
+const API_BASE = "https://YOUR_API_GATEWAY_URL/platform";
+
+// #Later replace with your API Gateway endpoint.
+
+const config = {
+
+API_BASE: "https://YOUR_API_GATEWAY/platform",
+
+COGNITO_DOMAIN: "https://platform-developer-login.auth.us-east-1.amazoncognito.com",
+
+CLIENT_ID: "COGNITO_CLIENT_ID",
+
+REDIRECT_URI: window.location.origin
+
+}
