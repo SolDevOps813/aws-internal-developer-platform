@@ -53,16 +53,27 @@ module "portal_cicd" {
 # Service Catalog (DynamoDB)
 ##################################################
 
-module "service_catalog" {
-  source = "../modules/service-catalog"
-}
+#module "service_catalog" {
+#  source = "../modules/service-catalog"
+#}
 
 ##################################################
 # Service Factory
 ##################################################
 
+#module "service_factory" {
+#  source = "../modules/service-factory"
+
+#  lambda_role_arn = module.platform_cicd.lambda_role_arn
+#}
+
+module "service_catalog" {
+  source = "../modules/service-catalog"
+}
+
 module "service_factory" {
   source = "../modules/service-factory"
 
-  lambda_role_arn = module.platform_cicd.lambda_role_arn
+  lambda_role_arn       = module.platform_cicd.lambda_role_arn
+  service_catalog_table = module.service_catalog.table_name
 }
