@@ -1,0 +1,7 @@
+Must Do:
+
+Create service
+
+Create tenant
+
+Write to DynamoDB
