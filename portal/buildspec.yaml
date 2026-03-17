@@ -1,24 +1,34 @@
 version: 0.2
 
+env:
+  variables:
+    S3_BUCKET: "your-portal-bucket-name"
+    CLOUDFRONT_DISTRIBUTION_ID: "YOUR_DIST_ID"
+
 phases:
 
   install:
+    runtime-versions:
+      nodejs: 18
     commands:
       - echo Installing dependencies
+      - npm install
 
   build:
     commands:
-      - echo Deploying portal
-      - aws s3 sync developer-portal/ s3://platform-developer-portal
+      - echo Building React app
+      - npm run build
 
   post_build:
     commands:
+      - echo Deploying to S3
+      - aws s3 sync build/ s3://$S3_BUCKET --delete
+
       - echo Invalidating CloudFront cache
-      - aws cloudfront create-invalidation --distribution-id $CF_DIST_ID --paths "/*"
+      - aws cloudfront create-invalidation \
+          --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+          --paths "/*"
 
-
-#       Key step:
-
-# aws s3 sync developer-portal/ s3://bucket
-
-# Uploads updated portal files.
+artifacts:
+  files:
+    - '**/*'
